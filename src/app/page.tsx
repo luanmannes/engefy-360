@@ -27,9 +27,9 @@ export default async function HomePage() {
   return (
     <>
       <Navbar profile={profile} />
-      <main className="max-w-[1100px] mx-auto px-6 pt-20 pb-16 relative z-10">
+      <main className="max-w-[1100px] mx-auto px-6 pt-28 pb-16 relative z-10">
         {/* Hero */}
-        <div className="text-center py-10 pb-14">
+        <div className="text-center pt-8 pb-14">
           <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-4 py-1.5 mb-7">
             <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse-dot" />
             <span className="font-head text-[11px] font-bold uppercase tracking-[0.15em] text-gold">

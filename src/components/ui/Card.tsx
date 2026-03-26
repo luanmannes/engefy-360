@@ -13,7 +13,7 @@ export default function Card({ children, className = '', hover, accent }: CardPr
     : ''
 
   return (
-    <div className={`bg-surface border border-bordersubtle rounded-2xl p-7 relative overflow-hidden transition-all duration-250 ${hoverClasses} ${className}`}>
+    <div className={`bg-surface border border-bordersubtle rounded-2xl p-7 relative overflow-hidden transition-all duration-200 ${hoverClasses} ${className}`}>
       {hover && (
         <div className={`absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-250 ${
           accent === 'steel'
