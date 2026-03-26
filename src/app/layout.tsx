@@ -1,18 +1,5 @@
 import type { Metadata } from 'next'
-import { DM_Sans, Syne } from 'next/font/google'
 import './globals.css'
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  variable: '--font-dm-sans',
-  display: 'swap',
-})
-
-const syne = Syne({
-  subsets: ['latin'],
-  variable: '--font-syne',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   title: 'Engefy 360 | Plataforma de Treinamento',
@@ -25,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" className={`${dmSans.variable} ${syne.variable}`}>
+    <html lang="pt-BR">
       <body className="min-h-screen bg-bg text-txtsecondary font-body antialiased">
         {children}
       </body>
