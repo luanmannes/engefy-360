@@ -19,7 +19,7 @@
   --font-body: var(--font-dm-sans, 'DM Sans', sans-serif);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   background: #080f18;

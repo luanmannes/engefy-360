@@ -20,7 +20,7 @@ export default async function AvaliacaoPage(props: { params: Promise<{ courseId:
   return (
     <>
       <Navbar profile={profile} />
-      <main className="max-w-[900px] mx-auto px-6 pb-16 relative z-10" style={{ paddingTop: '100px' }}>
+      <main className="max-w-[900px] mx-auto px-6 pt-24 pb-16 relative z-10">
         <QuizClient quiz={quiz} userId={user?.id} />
       </main>
     </>

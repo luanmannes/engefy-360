@@ -27,7 +27,7 @@ export default async function HomePage() {
   return (
     <>
       <Navbar profile={profile} />
-      <main className="max-w-[1100px] mx-auto px-6 pb-16 relative z-10" style={{ paddingTop: '120px' }}>
+      <main className="max-w-[1100px] mx-auto px-6 pt-24 pb-16 relative z-10">
         {/* Hero */}
         <div className="text-center pt-8 pb-14">
           <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-4 py-1.5 mb-7">

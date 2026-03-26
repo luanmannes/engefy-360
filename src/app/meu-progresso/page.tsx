@@ -15,7 +15,7 @@ export default async function MeuProgressoPage() {
   return (
     <>
       <Navbar profile={profile} />
-      <main className="max-w-[900px] mx-auto px-6 pb-16 relative z-10" style={{ paddingTop: '100px' }}>
+      <main className="max-w-[900px] mx-auto px-6 pt-24 pb-16 relative z-10">
         <div className="animate-fade-up">
           <h1 className="font-head text-3xl font-extrabold text-txtprimary mb-2">
             Meu Progresso
