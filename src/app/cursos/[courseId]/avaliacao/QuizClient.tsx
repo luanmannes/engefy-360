@@ -24,9 +24,31 @@ interface QuizData {
   }>
 }
 
+interface QuizClientProps {
+  quiz: QuizData
+  userId?: string
+  classDate?: string | null
+  availableAfterDays?: number
+}
+
 type View = 'name' | 'quiz' | 'result'
 
-export default function QuizClient({ quiz, userId }: { quiz: QuizData; userId?: string }) {
+export default function QuizClient({ quiz, userId, classDate, availableAfterDays = 30 }: QuizClientProps) {
+  // Time-lock check
+  const now = new Date()
+  let isLocked = false
+  let daysRemaining = 0
+  let unlockDate: Date | null = null
+
+  if (classDate) {
+    unlockDate = new Date(classDate)
+    unlockDate.setDate(unlockDate.getDate() + availableAfterDays)
+    isLocked = now < unlockDate
+    if (isLocked) {
+      daysRemaining = Math.ceil((unlockDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    }
+  }
+
   const [view, setView] = useState<View>('name')
   const [name, setName] = useState('')
   const [currentQ, setCurrentQ] = useState(0)
@@ -107,6 +129,32 @@ export default function QuizClient({ quiz, userId }: { quiz: QuizData; userId?: 
 
   const pct = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0
   const ringOffset = 427 - ((pct / 100) * 427)
+
+  // LOCKED VIEW
+  if (isLocked) {
+    return (
+      <div className="max-w-md mx-auto text-center animate-fade-up">
+        <div className="bg-surface border border-bordersubtle rounded-2xl p-10">
+          <div className="text-5xl mb-4">{'\u{1F512}'}</div>
+          <h2 className="font-head text-2xl font-extrabold text-txtprimary mb-2">
+            Avaliacao Bloqueada
+          </h2>
+          <p className="text-txtmuted text-sm mb-6">
+            Esta avaliacao estara disponivel <strong className="text-txtsecondary">{daysRemaining} dia{daysRemaining !== 1 ? 's' : ''}</strong> apos a aula presencial.
+          </p>
+          <div className="bg-surface2 rounded-xl p-4 mb-4">
+            <div className="text-xs text-txtmuted uppercase tracking-wider mb-1">Disponivel em</div>
+            <div className="font-head text-lg font-bold text-gold">
+              {unlockDate?.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+            </div>
+          </div>
+          <a href="/" className="inline-flex items-center gap-2 font-head text-xs font-bold uppercase tracking-wider text-txtmuted hover:text-txtprimary">
+            &larr; Voltar ao inicio
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   // NAME VIEW
   if (view === 'name') {
