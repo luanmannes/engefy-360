@@ -3,28 +3,27 @@
 @theme inline {
   --color-bg: #080f18;
   --color-surface: #0d1b2a;
-  --color-surface-2: #12253a;
+  --color-surface2: #12253a;
   --color-gold: #c8993a;
   --color-gold-light: #e8b84b;
   --color-steel: #5a8faa;
   --color-steel-light: #8ab0c8;
-  --color-text-primary: #f0f4f7;
-  --color-text-secondary: #dce8f0;
-  --color-text-muted: #6a7a8a;
+  --color-txtprimary: #f0f4f7;
+  --color-txtsecondary: #dce8f0;
+  --color-txtmuted: #6a7a8a;
   --color-success: #3aab6e;
   --color-error: #d94f4f;
-  --color-border: rgba(200, 153, 58, 0.15);
-  --color-border-subtle: rgba(255, 255, 255, 0.07);
-  --font-head: 'Syne', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
+  --color-bordergold: rgba(200, 153, 58, 0.15);
+  --color-bordersubtle: rgba(255, 255, 255, 0.07);
+  --font-head: var(--font-syne, 'Syne', sans-serif);
+  --font-body: var(--font-dm-sans, 'DM Sans', sans-serif);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-text-secondary);
-  font-family: var(--font-body);
+  background: #080f18;
+  color: #dce8f0;
   min-height: 100vh;
 }
 
@@ -44,11 +43,15 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse {
+@keyframes pulse-dot {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.35; }
 }
 
 .animate-fade-up {
   animation: fadeUp 0.4s ease;
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s infinite;
 }

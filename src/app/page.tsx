@@ -31,17 +31,17 @@ export default async function HomePage() {
         {/* Hero */}
         <div className="text-center py-10 pb-14">
           <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-4 py-1.5 mb-7">
-            <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse-dot" />
             <span className="font-head text-[11px] font-bold uppercase tracking-[0.15em] text-gold">
               PPI 360 — Treinamento Interno
             </span>
           </div>
 
-          <h1 className="font-head text-4xl sm:text-5xl font-extrabold text-text-primary leading-tight mb-4">
+          <h1 className="font-head text-4xl sm:text-5xl font-extrabold text-txtprimary leading-tight mb-4">
             Programa de Performance <em className="not-italic text-gold">Integrada</em>
           </h1>
 
-          <p className="text-text-muted text-base max-w-lg mx-auto leading-relaxed">
+          <p className="text-txtmuted text-base max-w-lg mx-auto leading-relaxed">
             Avaliações de absorção dos treinamentos internos. Selecione um módulo para iniciar.
           </p>
         </div>

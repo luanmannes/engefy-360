@@ -4,13 +4,13 @@ import './globals.css'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
-  variable: '--font-body',
+  variable: '--font-dm-sans',
   display: 'swap',
 })
 
 const syne = Syne({
   subsets: ['latin'],
-  variable: '--font-head',
+  variable: '--font-syne',
   display: 'swap',
 })
 
@@ -26,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className={`${dmSans.variable} ${syne.variable}`}>
-      <body className="min-h-screen bg-bg text-text-secondary font-body antialiased">
+      <body className="min-h-screen bg-bg text-txtsecondary font-body antialiased">
         {children}
       </body>
     </html>

@@ -27,7 +27,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ? 'border border-gold/30 text-gold hover:bg-gold/10'
         : 'border border-steel/30 text-steel hover:bg-steel/10',
       danger: 'bg-error text-white hover:bg-error/80',
-      ghost: 'text-text-muted hover:text-text-primary hover:bg-white/5',
+      ghost: 'text-txtmuted hover:text-txtprimary hover:bg-white/5',
     }
 
     return (

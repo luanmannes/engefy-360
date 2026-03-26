@@ -12,7 +12,7 @@ export default function ProgressBar({ value, max, accent = 'gold', showLabel }: 
     <div>
       {showLabel && (
         <div className="flex justify-between items-center mb-2">
-          <span className="font-head text-[11px] font-bold uppercase tracking-[0.15em] text-text-muted">
+          <span className="font-head text-[11px] font-bold uppercase tracking-[0.15em] text-txtmuted">
             Progresso
           </span>
           <span className={`font-head text-xs font-bold ${accent === 'gold' ? 'text-gold' : 'text-steel-light'}`}>

@@ -12,16 +12,16 @@ export default function AdminPage() {
 
   return (
     <div className="animate-fade-up">
-      <h1 className="font-head text-3xl font-extrabold text-text-primary mb-2">Painel Admin</h1>
-      <p className="text-text-muted text-base mb-8">Gerencie a plataforma de treinamento.</p>
+      <h1 className="font-head text-3xl font-extrabold text-txtprimary mb-2">Painel Admin</h1>
+      <p className="text-txtmuted text-base mb-8">Gerencie a plataforma de treinamento.</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {cards.map(card => (
           <Link key={card.title} href={card.href}>
             <Card hover accent="gold" className="h-full">
               <card.icon size={24} className={card.color + ' mb-3'} />
-              <h3 className="font-head text-lg font-bold text-text-primary mb-1">{card.title}</h3>
-              <p className="text-sm text-text-muted">{card.description}</p>
+              <h3 className="font-head text-lg font-bold text-txtprimary mb-1">{card.title}</h3>
+              <p className="text-sm text-txtmuted">{card.description}</p>
             </Card>
           </Link>
         ))}

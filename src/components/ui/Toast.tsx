@@ -39,7 +39,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             className={`px-5 py-3 rounded-xl font-body text-sm shadow-2xl animate-fade-up ${
               toast.type === 'success' ? 'bg-success text-white' :
               toast.type === 'error' ? 'bg-error text-white' :
-              'bg-surface-2 text-text-primary border border-border-subtle'
+              'bg-surface2 text-txtprimary border border-bordersubtle'
             }`}
           >
             {toast.message}

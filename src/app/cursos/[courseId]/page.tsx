@@ -33,11 +33,11 @@ export default async function CourseDetailPage(props: { params: Promise<{ course
             {quiz.module} · {quiz.date}
           </Badge>
 
-          <h1 className="font-head text-3xl sm:text-4xl font-extrabold text-text-primary mt-4 mb-2">
+          <h1 className="font-head text-3xl sm:text-4xl font-extrabold text-txtprimary mt-4 mb-2">
             {quiz.title}
           </h1>
 
-          <p className="text-text-muted text-base leading-relaxed mb-8">
+          <p className="text-txtmuted text-base leading-relaxed mb-8">
             {quiz.subtitle}
           </p>
 
@@ -45,10 +45,10 @@ export default async function CourseDetailPage(props: { params: Promise<{ course
             <Card accent={quiz.accent}>
               <div className="flex items-center gap-3 mb-3">
                 <FileText size={20} className={quiz.accent === 'gold' ? 'text-gold' : 'text-steel-light'} />
-                <h3 className="font-head text-lg font-bold text-text-primary">Avaliacao</h3>
+                <h3 className="font-head text-lg font-bold text-txtprimary">Avaliacao</h3>
               </div>
-              <p className="text-sm text-text-muted mb-1">{mcCount} questoes de multipla escolha</p>
-              <p className="text-sm text-text-muted mb-4">{openCount} questoes dissertativas</p>
+              <p className="text-sm text-txtmuted mb-1">{mcCount} questoes de multipla escolha</p>
+              <p className="text-sm text-txtmuted mb-4">{openCount} questoes dissertativas</p>
               <Link href={`/cursos/${quiz.id}/avaliacao`}>
                 <Button accent={quiz.accent} size="sm">
                   Fazer avaliacao <ArrowRight size={14} />
@@ -59,9 +59,9 @@ export default async function CourseDetailPage(props: { params: Promise<{ course
             <Card accent={quiz.accent}>
               <div className="flex items-center gap-3 mb-3">
                 <Play size={20} className={quiz.accent === 'gold' ? 'text-gold' : 'text-steel-light'} />
-                <h3 className="font-head text-lg font-bold text-text-primary">Video-aulas</h3>
+                <h3 className="font-head text-lg font-bold text-txtprimary">Video-aulas</h3>
               </div>
-              <p className="text-sm text-text-muted mb-4">
+              <p className="text-sm text-txtmuted mb-4">
                 Os videos ficam disponiveis apos a aprovacao na avaliacao de capacitacao (30 dias apos a aula presencial).
               </p>
               <Button accent={quiz.accent} variant="secondary" size="sm" disabled>

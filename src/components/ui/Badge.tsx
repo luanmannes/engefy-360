@@ -10,7 +10,7 @@ export default function Badge({ children, variant = 'gold', size = 'sm' }: Badge
     steel: 'bg-steel/10 text-steel-light border-steel/20',
     success: 'bg-success/10 text-success border-success/20',
     error: 'bg-error/10 text-error border-error/20',
-    neutral: 'bg-white/5 text-text-muted border-border-subtle',
+    neutral: 'bg-white/5 text-txtmuted border-bordersubtle',
   }
 
   const sizes = {

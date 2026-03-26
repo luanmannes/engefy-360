@@ -13,17 +13,17 @@ export default async function LoginPage(props: { searchParams: Promise<{ error?:
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="w-full max-w-md text-center relative z-10">
         <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-4 py-1.5 mb-8">
-          <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+          <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse-dot" />
           <span className="font-head text-[11px] font-bold uppercase tracking-[0.15em] text-gold">
             Plataforma de Treinamento
           </span>
         </div>
 
-        <h1 className="font-head text-4xl sm:text-5xl font-extrabold text-text-primary leading-tight mb-4">
+        <h1 className="font-head text-4xl sm:text-5xl font-extrabold text-txtprimary leading-tight mb-4">
           ENGEFY <span className="text-gold">360</span>
         </h1>
 
-        <p className="text-text-muted text-base mb-10 max-w-sm mx-auto leading-relaxed">
+        <p className="text-txtmuted text-base mb-10 max-w-sm mx-auto leading-relaxed">
           Acesse a plataforma de treinamento e desenvolvimento da Construtora Engefy.
         </p>
 

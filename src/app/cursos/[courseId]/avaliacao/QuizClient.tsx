@@ -112,16 +112,16 @@ export default function QuizClient({ quiz, userId }: { quiz: QuizData; userId?: 
   if (view === 'name') {
     return (
       <div className="max-w-md mx-auto text-center animate-fade-up">
-        <div className="bg-surface border border-border-subtle rounded-2xl p-10">
+        <div className="bg-surface border border-bordersubtle rounded-2xl p-10">
           <Badge variant={quiz.accent} size="md">
             {quiz.module} &#8212; {quiz.title}
           </Badge>
 
-          <h2 className="font-head text-2xl font-extrabold text-text-primary mt-6 mb-2">
+          <h2 className="font-head text-2xl font-extrabold text-txtprimary mt-6 mb-2">
             Avaliacao de {quiz.title}
           </h2>
 
-          <p className="text-text-muted text-sm mb-6">{quiz.subtitle}</p>
+          <p className="text-txtmuted text-sm mb-6">{quiz.subtitle}</p>
 
           <input
             type="text"
@@ -129,7 +129,7 @@ export default function QuizClient({ quiz, userId }: { quiz: QuizData; userId?: 
             onChange={e => setName(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && startQuiz()}
             placeholder="Seu nome completo"
-            className={`w-full bg-white/[0.04] border rounded-xl px-5 py-4 text-text-primary font-body text-base text-center outline-none transition-colors duration-200 mb-6 ${
+            className={`w-full bg-white/[0.04] border rounded-xl px-5 py-4 text-txtprimary font-body text-base text-center outline-none transition-colors duration-200 mb-6 ${
               isGold
                 ? 'border-white/10 focus:border-gold'
                 : 'border-white/10 focus:border-steel-light'
@@ -158,21 +158,21 @@ export default function QuizClient({ quiz, userId }: { quiz: QuizData; userId?: 
           showLabel
         />
 
-        <div className="bg-surface border border-border-subtle rounded-2xl p-8 mt-4">
+        <div className="bg-surface border border-bordersubtle rounded-2xl p-8 mt-4">
           <div className={`font-head text-[11px] font-bold uppercase tracking-[0.15em] mb-4 ${
             isGold ? 'text-gold' : 'text-steel-light'
           }`}>
             Questao {currentQ + 1} de {quiz.questions.length} &middot; {question.type === 'mc' ? 'Multipla escolha' : 'Resposta aberta'}
           </div>
 
-          <p className="text-[17px] font-medium text-text-primary leading-relaxed mb-6">
+          <p className="text-[17px] font-medium text-txtprimary leading-relaxed mb-6">
             {question.text}
           </p>
 
           {question.type === 'mc' && question.options ? (
             <div className="flex flex-col gap-2.5">
               {question.options.map((opt, i) => {
-                let optClass = 'border-border-subtle bg-white/[0.02] hover:bg-white/[0.04]'
+                let optClass = 'border-bordersubtle bg-white/[0.02] hover:bg-white/[0.04]'
 
                 if (selectedOption !== null) {
                   if (i === question.correct) {
@@ -180,7 +180,7 @@ export default function QuizClient({ quiz, userId }: { quiz: QuizData; userId?: 
                   } else if (i === selectedOption && i !== question.correct) {
                     optClass = 'border-error/50 bg-error/10'
                   } else {
-                    optClass = 'border-border-subtle bg-white/[0.01] opacity-50'
+                    optClass = 'border-bordersubtle bg-white/[0.01] opacity-50'
                   }
                 } else {
                   optClass += isGold ? ' hover:border-gold/30' : ' hover:border-steel/30'
@@ -204,7 +204,7 @@ export default function QuizClient({ quiz, userId }: { quiz: QuizData; userId?: 
                     }`}>
                       {letters[i]}
                     </span>
-                    <span className="text-sm text-text-secondary leading-relaxed pt-0.5">{opt}</span>
+                    <span className="text-sm text-txtsecondary leading-relaxed pt-0.5">{opt}</span>
                   </button>
                 )
               })}
@@ -226,7 +226,7 @@ export default function QuizClient({ quiz, userId }: { quiz: QuizData; userId?: 
               onChange={e => handleOpenAnswer(e.target.value)}
               placeholder="Escreva sua resposta aqui..."
               rows={5}
-              className={`w-full bg-white/[0.04] border rounded-xl px-5 py-4 text-text-primary font-body text-sm outline-none transition-colors resize-y min-h-[120px] ${
+              className={`w-full bg-white/[0.04] border rounded-xl px-5 py-4 text-txtprimary font-body text-sm outline-none transition-colors resize-y min-h-[120px] ${
                 isGold ? 'border-white/10 focus:border-gold' : 'border-white/10 focus:border-steel-light'
               }`}
             />
@@ -255,7 +255,7 @@ export default function QuizClient({ quiz, userId }: { quiz: QuizData; userId?: 
 
   return (
     <div className="max-w-md mx-auto text-center animate-fade-up">
-      <div className="bg-surface border border-border-subtle rounded-2xl p-10">
+      <div className="bg-surface border border-bordersubtle rounded-2xl p-10">
         {/* Score Ring */}
         <div className="relative w-40 h-40 mx-auto mb-6">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 150 150">
@@ -271,30 +271,30 @@ export default function QuizClient({ quiz, userId }: { quiz: QuizData; userId?: 
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-head text-4xl font-extrabold text-text-primary">{score}</span>
-            <span className="text-xs text-text-muted">de {maxScore}</span>
+            <span className="font-head text-4xl font-extrabold text-txtprimary">{score}</span>
+            <span className="text-xs text-txtmuted">de {maxScore}</span>
           </div>
         </div>
 
-        <h2 className="font-head text-2xl font-extrabold text-text-primary mb-2">
+        <h2 className="font-head text-2xl font-extrabold text-txtprimary mb-2">
           {resultTitle}
         </h2>
 
-        <p className="text-text-muted text-sm leading-relaxed mb-6">{resultSub}</p>
+        <p className="text-txtmuted text-sm leading-relaxed mb-6">{resultSub}</p>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 bg-surface-2 rounded-xl p-4 mb-6">
+        <div className="grid grid-cols-3 gap-3 bg-surface2 rounded-xl p-4 mb-6">
           <div className="text-center">
             <div className="font-head text-2xl font-extrabold text-success">{score}</div>
-            <div className="text-[10px] text-text-muted uppercase tracking-wider mt-1">Acertos</div>
+            <div className="text-[10px] text-txtmuted uppercase tracking-wider mt-1">Acertos</div>
           </div>
           <div className="text-center">
             <div className="font-head text-2xl font-extrabold text-error">{maxScore - score}</div>
-            <div className="text-[10px] text-text-muted uppercase tracking-wider mt-1">Erros</div>
+            <div className="text-[10px] text-txtmuted uppercase tracking-wider mt-1">Erros</div>
           </div>
           <div className="text-center">
             <div className="font-head text-2xl font-extrabold" style={{ color: ringColor }}>{pct}%</div>
-            <div className="text-[10px] text-text-muted uppercase tracking-wider mt-1">Aproveit.</div>
+            <div className="text-[10px] text-txtmuted uppercase tracking-wider mt-1">Aproveit.</div>
           </div>
         </div>
 
