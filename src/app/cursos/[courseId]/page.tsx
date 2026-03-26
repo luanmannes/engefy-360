@@ -27,7 +27,7 @@ export default async function CourseDetailPage(props: { params: Promise<{ course
   return (
     <>
       <Navbar profile={profile} />
-      <main className="max-w-[900px] mx-auto px-6 pt-20 pb-16 relative z-10">
+      <main className="max-w-[900px] mx-auto px-6 pb-16 relative z-10" style={{ paddingTop: '100px' }}>
         <div className="animate-fade-up">
           <Badge variant={quiz.accent} size="md">
             {quiz.module} · {quiz.date}

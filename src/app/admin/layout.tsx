@@ -13,7 +13,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <>
       <Navbar profile={profile} />
-      <main className="max-w-[1100px] mx-auto px-6 pt-20 pb-16 relative z-10">
+      <main className="max-w-[1100px] mx-auto px-6 pb-16 relative z-10" style={{ paddingTop: '100px' }}>
         {children}
       </main>
     </>
