@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 import ProgressBar from '@/components/ui/ProgressBar'
-import { ArrowRight, RotateCcw, Home } from 'lucide-react'
+import { ArrowRight, RotateCcw, Home, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 interface QuizData {
@@ -28,6 +28,12 @@ interface QuizClientProps {
   userId?: string
   classDate?: string | null
   availableAfterDays?: number
+}
+
+interface AiGradingResult {
+  score: number
+  feedback: string
+  loading: boolean
 }
 
 type View = 'name' | 'quiz' | 'result'
@@ -62,6 +68,10 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
   const [hasAttempted, setHasAttempted] = useState(false)
   const [submissionResult, setSubmissionResult] = useState<{ isFirstAttempt: boolean; rankingScore: { score: number; maxScore: number; percentage: number } } | null>(null)
 
+  // AI grading state
+  const [aiGrading, setAiGrading] = useState<Record<number, AiGradingResult>>({})
+  const [grading, setGrading] = useState(false)
+
   const isGold = quiz.accent === 'gold'
   const mcQuestions = quiz.questions.filter(q => q.type === 'mc')
   const maxScore = mcQuestions.length
@@ -88,6 +98,7 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
     setCurrentQ(0)
     setScore(0)
     setAnswers({})
+    setAiGrading({})
   }
 
   const selectOption = (optIdx: number) => {
@@ -106,6 +117,47 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
     setAnswers(prev => ({ ...prev, [currentQ]: text }))
   }
 
+  const gradeOpenAnswer = async () => {
+    setGrading(true)
+    setAiGrading(prev => ({
+      ...prev,
+      [currentQ]: { score: 0, feedback: '', loading: true }
+    }))
+
+    try {
+      const res = await fetch('/api/quiz/grade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionText: question.text,
+          answer: answers[currentQ] as string,
+          quizContext: quiz.module + ' - ' + quiz.title,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        setAiGrading(prev => ({
+          ...prev,
+          [currentQ]: { score: data.score, feedback: data.feedback, loading: false }
+        }))
+      } else {
+        setAiGrading(prev => ({
+          ...prev,
+          [currentQ]: { score: 5, feedback: 'Nao foi possivel avaliar automaticamente. Sua resposta foi registrada.', loading: false }
+        }))
+      }
+    } catch {
+      setAiGrading(prev => ({
+        ...prev,
+        [currentQ]: { score: 5, feedback: 'Erro de conexao. Sua resposta foi registrada.', loading: false }
+      }))
+    }
+
+    setGrading(false)
+  }
+
   const nextQuestion = async () => {
     setSelectedOption(null)
     setShowFeedback(false)
@@ -114,7 +166,13 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
       setCurrentQ(prev => prev + 1)
     } else {
       setSaving(true)
-      const pct = Math.round((score / maxScore) * 100)
+
+      // Calculate total score including AI scores for open questions
+      const aiTotalScore = Object.values(aiGrading).reduce((sum, g) => sum + g.score, 0)
+      const aiMaxScore = Object.keys(aiGrading).length * 10
+      const combinedScore = score + aiTotalScore
+      const combinedMaxScore = maxScore + aiMaxScore
+      const pct = combinedMaxScore > 0 ? Math.round((combinedScore / combinedMaxScore) * 100) : 0
 
       if (userId) {
         try {
@@ -124,14 +182,17 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
             body: JSON.stringify({
               quizId: quiz.id,
               quizName: quiz.title,
-              score,
-              maxScore,
+              score: combinedScore,
+              maxScore: combinedMaxScore,
               percentage: pct,
               answers: Object.fromEntries(
                 Object.entries(answers).filter(([k]) => quiz.questions[Number(k)].type === 'mc').map(([k, v]) => [k, v])
               ),
               openAnswers: Object.fromEntries(
                 Object.entries(answers).filter(([k]) => quiz.questions[Number(k)].type === 'open').map(([k, v]) => [k, v])
+              ),
+              aiGrades: Object.fromEntries(
+                Object.entries(aiGrading).map(([k, v]) => [k, { score: v.score, feedback: v.feedback }])
               ),
             }),
           })
@@ -149,11 +210,21 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
     }
   }
 
+  // For open questions: need text > 10 chars AND either already graded or ready to grade
+  const currentIsOpen = question?.type === 'open'
+  const currentOpenText = typeof answers[currentQ] === 'string' ? (answers[currentQ] as string) : ''
+  const currentOpenHasText = currentOpenText.length > 10
+  const currentIsGraded = currentIsOpen && aiGrading[currentQ] && !aiGrading[currentQ].loading
   const canProceed = question?.type === 'mc'
     ? selectedOption !== null
-    : typeof answers[currentQ] === 'string' && (answers[currentQ] as string).length > 10
+    : currentIsGraded
 
-  const pct = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0
+  // Calculate combined scores for result view
+  const aiTotalScore = Object.values(aiGrading).reduce((sum, g) => sum + g.score, 0)
+  const aiMaxScoreTotal = Object.keys(aiGrading).length * 10
+  const combinedScore = score + aiTotalScore
+  const combinedMaxScore = maxScore + aiMaxScoreTotal
+  const pct = combinedMaxScore > 0 ? Math.round((combinedScore / combinedMaxScore) * 100) : 0
   const ringOffset = 427 - ((pct / 100) * 427)
 
   // LOCKED VIEW
@@ -305,18 +376,71 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
               )}
             </div>
           ) : (
-            <textarea
-              value={(answers[currentQ] as string) || ''}
-              onChange={e => handleOpenAnswer(e.target.value)}
-              placeholder="Escreva sua resposta aqui..."
-              rows={5}
-              className={`w-full bg-white/[0.04] border rounded-xl px-5 py-4 text-txtprimary font-body text-sm outline-none transition-colors resize-y min-h-[120px] ${
-                isGold ? 'border-white/10 focus:border-gold' : 'border-white/10 focus:border-steel-light'
-              }`}
-            />
+            <div className="flex flex-col gap-3">
+              <textarea
+                value={(answers[currentQ] as string) || ''}
+                onChange={e => handleOpenAnswer(e.target.value)}
+                placeholder="Escreva sua resposta aqui..."
+                rows={5}
+                disabled={currentIsGraded}
+                className={`w-full bg-white/[0.04] border rounded-xl px-5 py-4 text-txtprimary font-body text-sm outline-none transition-colors resize-y min-h-[120px] disabled:opacity-60 ${
+                  isGold ? 'border-white/10 focus:border-gold' : 'border-white/10 focus:border-steel-light'
+                }`}
+              />
+
+              {/* AI grading feedback */}
+              {aiGrading[currentQ]?.loading && (
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.03] border border-bordersubtle">
+                  <Loader2 size={18} className="animate-spin text-gold" />
+                  <span className="text-sm text-txtmuted">Avaliando sua resposta com IA...</span>
+                </div>
+              )}
+
+              {currentIsGraded && (
+                <div className={`p-4 rounded-xl text-sm leading-relaxed border ${
+                  aiGrading[currentQ].score >= 8
+                    ? 'bg-success/10 border-success/20'
+                    : aiGrading[currentQ].score >= 5
+                    ? 'bg-gold/10 border-gold/20'
+                    : 'bg-error/10 border-error/20'
+                }`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`font-head text-lg font-extrabold ${
+                      aiGrading[currentQ].score >= 8
+                        ? 'text-success'
+                        : aiGrading[currentQ].score >= 5
+                        ? 'text-gold'
+                        : 'text-error'
+                    }`}>
+                      {aiGrading[currentQ].score}/10
+                    </span>
+                    <span className="text-xs text-txtmuted uppercase tracking-wider">Nota IA</span>
+                  </div>
+                  <p className="text-txtsecondary">{aiGrading[currentQ].feedback}</p>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
+        {/* Buttons for open questions: show "Avaliar" first, then "Proxima" after grading */}
+        {currentIsOpen && !currentIsGraded && currentOpenHasText && (
+          <div className="flex justify-end mt-4">
+            <Button onClick={gradeOpenAnswer} accent={quiz.accent} disabled={grading}>
+              {grading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" /> Avaliando...
+                </>
+              ) : (
+                <>
+                  Avaliar resposta <ArrowRight size={16} />
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+
+        {/* "Proxima" button for MC (after selecting) or open (after grading) */}
         {canProceed && (
           <div className="flex justify-end mt-4">
             <Button onClick={nextQuestion} accent={quiz.accent}>
@@ -337,6 +461,8 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
     : name + ', o treinamento foi denso. Revise o material e os conceitos com duvida.'
   const ringColor = pct >= 80 ? '#3aab6e' : pct >= 60 ? (isGold ? '#c8993a' : '#8ab0c8') : '#d94f4f'
 
+  const hasOpenQuestions = Object.keys(aiGrading).length > 0
+
   return (
     <div className="max-w-md mx-auto text-center animate-fade-up">
       <div className="bg-surface border border-bordersubtle rounded-2xl p-10">
@@ -355,8 +481,8 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-head text-4xl font-extrabold text-txtprimary">{score}</span>
-            <span className="text-xs text-txtmuted">de {maxScore}</span>
+            <span className="font-head text-4xl font-extrabold text-txtprimary">{combinedScore}</span>
+            <span className="text-xs text-txtmuted">de {combinedMaxScore}</span>
           </div>
         </div>
 
@@ -367,20 +493,54 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
         <p className="text-txtmuted text-sm leading-relaxed mb-6">{resultSub}</p>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 bg-surface2 rounded-xl p-4 mb-6">
-          <div className="text-center">
-            <div className="font-head text-2xl font-extrabold text-success">{score}</div>
-            <div className="text-[10px] text-txtmuted uppercase tracking-wider mt-1">Acertos</div>
-          </div>
-          <div className="text-center">
-            <div className="font-head text-2xl font-extrabold text-error">{maxScore - score}</div>
-            <div className="text-[10px] text-txtmuted uppercase tracking-wider mt-1">Erros</div>
-          </div>
+        <div className={`grid gap-3 bg-surface2 rounded-xl p-4 mb-6 ${hasOpenQuestions ? 'grid-cols-2' : 'grid-cols-3'}`}>
+          {maxScore > 0 && (
+            <>
+              <div className="text-center">
+                <div className="font-head text-2xl font-extrabold text-success">{score}</div>
+                <div className="text-[10px] text-txtmuted uppercase tracking-wider mt-1">Acertos MC</div>
+              </div>
+              <div className="text-center">
+                <div className="font-head text-2xl font-extrabold text-error">{maxScore - score}</div>
+                <div className="text-[10px] text-txtmuted uppercase tracking-wider mt-1">Erros MC</div>
+              </div>
+            </>
+          )}
+          {hasOpenQuestions && (
+            <div className="text-center">
+              <div className="font-head text-2xl font-extrabold text-gold">{aiTotalScore}/{aiMaxScoreTotal}</div>
+              <div className="text-[10px] text-txtmuted uppercase tracking-wider mt-1">Nota IA</div>
+            </div>
+          )}
           <div className="text-center">
             <div className="font-head text-2xl font-extrabold" style={{ color: ringColor }}>{pct}%</div>
             <div className="text-[10px] text-txtmuted uppercase tracking-wider mt-1">Aproveit.</div>
           </div>
         </div>
+
+        {/* AI feedback summary for open questions */}
+        {hasOpenQuestions && (
+          <div className="mb-6 space-y-2">
+            <div className="text-xs font-head font-bold uppercase tracking-wider text-txtmuted mb-2">Feedback das questoes abertas</div>
+            {Object.entries(aiGrading).map(([qIdx, gradeResult]) => (
+              <div key={qIdx} className={`text-left p-3 rounded-xl border text-sm ${
+                gradeResult.score >= 8
+                  ? 'bg-success/5 border-success/15'
+                  : gradeResult.score >= 5
+                  ? 'bg-gold/5 border-gold/15'
+                  : 'bg-error/5 border-error/15'
+              }`}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-txtmuted">Q{Number(qIdx) + 1}</span>
+                  <span className={`font-head text-sm font-bold ${
+                    gradeResult.score >= 8 ? 'text-success' : gradeResult.score >= 5 ? 'text-gold' : 'text-error'
+                  }`}>{gradeResult.score}/10</span>
+                </div>
+                <p className="text-xs text-txtsecondary leading-relaxed">{gradeResult.feedback}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Ranking info for retakes */}
         {submissionResult && !submissionResult.isFirstAttempt && (
@@ -401,6 +561,7 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
               setSelectedOption(null)
               setShowFeedback(false)
               setSubmissionResult(null)
+              setAiGrading({})
             }}
             fullWidth
           >
