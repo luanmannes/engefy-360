@@ -7,10 +7,11 @@ import { Trophy, Download } from 'lucide-react'
 export default async function RankingPage() {
   const supabase = await createClient()
 
-  // Fetch all assessment results with user info
+  // Fetch only first-attempt quiz submissions for ranking
   const { data: results } = await supabase
-    .from('assessment_results')
+    .from('quiz_submissions')
     .select('*, profiles:user_id(full_name, department)')
+    .eq('is_first_attempt', true)
     .order('completed_at', { ascending: false })
 
   // Aggregate by person
@@ -29,7 +30,7 @@ export default async function RankingPage() {
     }
     byPerson[key].totalScore += r.score
     byPerson[key].totalMax += r.max_score
-    byPerson[key].quizzes.add(r.assessment_id)
+    byPerson[key].quizzes.add(r.quiz_id)
   })
 
   const ranked = Object.values(byPerson)

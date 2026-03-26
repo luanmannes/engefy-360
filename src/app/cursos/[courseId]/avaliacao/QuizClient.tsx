@@ -1,10 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 import ProgressBar from '@/components/ui/ProgressBar'
-import { createClient } from '@/lib/supabase/client'
 import { ArrowRight, RotateCcw, Home } from 'lucide-react'
 import Link from 'next/link'
 
@@ -58,10 +57,30 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
   const [showFeedback, setShowFeedback] = useState(false)
   const [saving, setSaving] = useState(false)
 
+  // First-attempt tracking
+  const [existingResult, setExistingResult] = useState<{ score: number; maxScore: number; percentage: number } | null>(null)
+  const [hasAttempted, setHasAttempted] = useState(false)
+  const [submissionResult, setSubmissionResult] = useState<{ isFirstAttempt: boolean; rankingScore: { score: number; maxScore: number; percentage: number } } | null>(null)
+
   const isGold = quiz.accent === 'gold'
   const mcQuestions = quiz.questions.filter(q => q.type === 'mc')
   const maxScore = mcQuestions.length
   const question = quiz.questions[currentQ]
+
+  // Check for existing quiz submissions on mount
+  useEffect(() => {
+    if (userId) {
+      fetch(`/api/quiz/check?quizId=${quiz.id}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.hasAttempted) {
+            setHasAttempted(true)
+            setExistingResult(data.firstAttempt)
+          }
+        })
+        .catch(() => {})
+    }
+  }, [quiz.id, userId])
 
   const startQuiz = () => {
     if (!name.trim()) return
@@ -99,22 +118,29 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
 
       if (userId) {
         try {
-          const supabase = createClient()
-          await supabase.from('assessment_results').insert({
-            user_id: userId,
-            score,
-            max_score: maxScore,
-            percentage: pct,
-            answers: Object.fromEntries(
-              Object.entries(answers).filter(([k]) => quiz.questions[Number(k)].type === 'mc').map(([k, v]) => [k, v])
-            ),
-            open_answers: Object.fromEntries(
-              Object.entries(answers).filter(([k]) => quiz.questions[Number(k)].type === 'open').map(([k, v]) => [k, v])
-            ),
-            passed: pct >= 70,
+          const res = await fetch('/api/quiz/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              quizId: quiz.id,
+              quizName: quiz.title,
+              score,
+              maxScore,
+              percentage: pct,
+              answers: Object.fromEntries(
+                Object.entries(answers).filter(([k]) => quiz.questions[Number(k)].type === 'mc').map(([k, v]) => [k, v])
+              ),
+              openAnswers: Object.fromEntries(
+                Object.entries(answers).filter(([k]) => quiz.questions[Number(k)].type === 'open').map(([k, v]) => [k, v])
+              ),
+            }),
           })
+          const data = await res.json()
+          if (data.success) {
+            setSubmissionResult(data)
+          }
         } catch {
-          // silently fail if table does not exist yet
+          // silently fail if API is not available yet
         }
       }
 
@@ -171,6 +197,16 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
 
           <p className="text-txtmuted text-sm mb-6">{quiz.subtitle}</p>
 
+          {hasAttempted && existingResult && (
+            <div className="bg-gold/5 border border-gold/20 rounded-xl p-4 mb-6 text-left">
+              <div className="text-xs font-head font-bold uppercase tracking-wider text-gold mb-1">Voce ja fez esta avaliacao</div>
+              <p className="text-sm text-txtsecondary">
+                Sua nota no ranking: <strong className="text-txtprimary">{existingResult.score}/{existingResult.maxScore} ({existingResult.percentage}%)</strong>
+              </p>
+              <p className="text-xs text-txtmuted mt-1">Voce pode refazer para estudar, mas a nota do ranking sera sempre a primeira.</p>
+            </div>
+          )}
+
           <input
             type="text"
             value={name}
@@ -186,7 +222,7 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
           />
 
           <Button onClick={startQuiz} accent={quiz.accent} fullWidth size="lg">
-            Iniciar Avaliacao <ArrowRight size={16} />
+            {hasAttempted ? 'Refazer Avaliacao' : 'Iniciar Avaliacao'} <ArrowRight size={16} />
           </Button>
         </div>
       </div>
@@ -346,6 +382,13 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
           </div>
         </div>
 
+        {/* Ranking info for retakes */}
+        {submissionResult && !submissionResult.isFirstAttempt && (
+          <div className="bg-gold/5 border border-gold/20 rounded-xl p-3 mb-4 text-sm text-txtsecondary">
+            <strong className="text-gold">Nota do ranking:</strong> {submissionResult.rankingScore.score}/{submissionResult.rankingScore.maxScore} ({submissionResult.rankingScore.percentage}%) — primeira tentativa
+          </div>
+        )}
+
         <div className="flex gap-3">
           <Button
             variant="secondary"
@@ -357,6 +400,7 @@ export default function QuizClient({ quiz, userId, classDate, availableAfterDays
               setAnswers({})
               setSelectedOption(null)
               setShowFeedback(false)
+              setSubmissionResult(null)
             }}
             fullWidth
           >
